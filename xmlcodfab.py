@@ -1,7 +1,7 @@
-from xml_read import read
+from xml_read import read_xml
 from logger_settings import app_logger
 
-dataset = read('C:\\Users\\sergio.camara\\Documents\\OneDrive\\Coding\\python\\XMLCodFab\\xml')
+dataset = read_xml('C:\\Users\\sergio.camara\\Documents\\OneDrive\\Coding\\python\\XMLCodFab\\xml')
 
 with open('sql.txt', 'w+') as arquivo_texto:
     for linha in dataset:
