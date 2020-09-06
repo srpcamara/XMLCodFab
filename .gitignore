@@ -2,6 +2,8 @@ __pycache__
 .vscode
 .venv
 xml
+*.db
+sqlite.txt
 *.log
 files
 run.bat
