@@ -8,12 +8,6 @@ c = connection.cursor()
 
 dataset = []
 
-def create_table():
-    c.execute('CREATE TABLE IF NOT EXISTS db (codfornec integer, cnpj integer, fornecedor text, codprod integer, codfab text, descricao text, ean integer, unidade text)')
-    
-def drop_table(tabela):
-    c.execute(f'drop table if exists {tabela}')
-
 def read_csv(file_name):
     with open(file_name, newline='') as csv_file:
         file_content = csv.reader(csv_file, delimiter=',')
@@ -33,7 +27,7 @@ def clean_csv(dataset):
 def export_sql_command(dataset):
     with open('sql.txt', 'w+') as arquivo_texto:
         for linha in dataset:
-            sql = f'INSERT INTO db(codfornec, cnpj, fornecedor, codprod, codfab, descricao, ean, unidade) values \
+            sql = f'INSERT INTO db(codfornec, cgc, fornecedor, codprod, codfab, descricao, codauxiliar, unidade) values \
                               ({linha[0]}, {linha[1]}, "{linha[2]}", {linha[3]}, "{linha[4]}", "{linha[5]}", {linha[6]}, "{linha[7]}");'        
             arquivo_texto.write(str(sql) + '\n')            
             
@@ -43,8 +37,7 @@ def write_internal_db(dataset):
     c.execute('DELETE FROM db')
 
     for linha in dataset:        
-        sql = f'INSERT INTO db(codfornec, cnpj, fornecedor, codprod, codfab, descricao, ean, unidade) values \
-                              ({linha[0]}, {linha[1]}, "{linha[2]}", {linha[3]}, "{linha[4]}", "{linha[5]}", {linha[6]}, "{linha[7]}")'
+        sql = f'INSERT INTO db(codfornec, cgc, fornecedor, codprod, codfab, descricao, codauxiliar, unidade) values ({linha[0]}, {linha[1]}, "{linha[2]}", {linha[3]}, "{linha[4]}", "{linha[5]}", {linha[6]}, "{linha[7]}")'
         try:
             c.execute(sql)
         except:
@@ -54,7 +47,6 @@ def write_internal_db(dataset):
 
     app_logger.info("Dados gravados com sucesso no banco de dados interno")     
 
-create_table()
 dataset = read_csv('dados.csv')
 clean_csv(dataset)
 #export_sql_command(dataset)
@@ -62,6 +54,7 @@ write_internal_db(dataset)
 connection.close()
 
 '''
+Extract da PCCODFABRICA
 SELECT c.codfornec
        ,f.cgc
        ,f.fornecedor

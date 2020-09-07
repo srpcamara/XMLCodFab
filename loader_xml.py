@@ -6,12 +6,6 @@ import sqlite3
 connection = sqlite3.connect('database.db')
 c = connection.cursor()
 
-def create_table():
-    c.execute('CREATE TABLE IF NOT EXISTS xml (cnpj integer, codfabrica text, ean integer, descricao text, unidade text)')
-    
-def drop_table(tabela):
-    c.execute(f'drop table if exists {tabela}')
-
 def read_xml(xml_folder):    
     xmls_files = [f"{xml_folder}/{xml_file}" for xml_file in listdir(xml_folder) if xml_file.endswith('.xml')]
 
@@ -33,8 +27,8 @@ def read_xml(xml_folder):
                     x[0].find(f'{namespace}xProd').text,
                     x[0].find(f'{namespace}uCom').text
                 ])                
-        except IndexError:
-            app_logger.info(f"Arquivo sem conteúdo: {xml_file}")
+        except:
+            app_logger.error(f"Arquivo não processado: {xml_file}")
 
     return dataset
 
@@ -47,6 +41,5 @@ def write_internal_db(dataset):
 
     connection.commit()
 
-create_table()
 write_internal_db(read_xml('xml'))
 connection.close()

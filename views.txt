@@ -1,0 +1,35 @@
+-- SQLite
+SELECT xml.cnpj AS '(XML) CNPJ'
+     , db.cnpj AS '(DB) CNPJ'
+     , db.codfornec AS '(DB) Cod.Fornec'
+     , db.fornecedor AS '(DB) Fornecedor'
+     , xml.codfabrica AS '(XML) Cod.Fab'
+     , db.codfab AS '(DB) Cod.Fab'
+     , db.codprod AS '(DB) Cod.Prod'
+     , xml.descricao AS '(XML) Descrição'
+     , db.descricao AS '(DB) Descrição'
+     , xml.ean AS '(XML) EAN'
+     , db.ean AS '(DB) EAN'
+     , xml.unidade AS '(XML) Unidade'
+     , db.unidade AS '(DB) Unidade'
+FROM xml, db
+WHERE xml.cnpj = db.cnpj
+  AND xml.codfabrica = db.codfab
+
+SELECT xml.cnpj AS '(XML) CNPJ'
+     , db.cnpj AS '(DB) CNPJ'
+     , db.codfornec AS '(DB) Cod.Fornec'
+     , db.fornecedor AS '(DB) Fornecedor'
+     , xml.codfabrica AS '(XML) Cod.Fab'
+     , db.codfab AS '(DB) Cod.Fab'
+     , db.codprod AS '(DB) Cod.Prod'
+     , xml.descricao AS '(XML) Descrição'
+     , db.descricao AS '(DB) Descrição'
+     , xml.ean AS '(XML) EAN'
+     , db.ean AS '(DB) EAN'
+     , xml.unidade AS '(XML) Unidade'
+     , db.unidade AS '(DB) Unidade'
+FROM xml
+LEFT JOIN DB
+ON xml.cnpj = db.cnpj AND xml.codfabrica = db.codfab
+WHERE (db.cnpj IS NULL OR db.codprod IS NULL)
