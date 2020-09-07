@@ -6,7 +6,7 @@ import sqlite3
 connection = sqlite3.connect('database.db')
 c = connection.cursor()
 
-def create_tables():
+def create_table():
     c.execute('CREATE TABLE IF NOT EXISTS xml (cnpj integer, codfabrica text, ean integer, descricao text, unidade text)')
     
 def drop_table(tabela):
@@ -47,6 +47,6 @@ def write_internal_db(dataset):
 
     connection.commit()
 
-create_tables()
+create_table()
 write_internal_db(read_xml('xml'))
 connection.close()

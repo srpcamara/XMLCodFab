@@ -30,7 +30,7 @@ logging_config = dict(
     },
     loggers={
         'app_logger': {
-            'handlers': ['app-logger'],
+            'handlers': ['app-logger', 'console'],
             'level': logging.DEBUG
         }
     }

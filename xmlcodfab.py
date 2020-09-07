@@ -1,4 +1,4 @@
-from xml_read import read_xml
+from loader_xml import read_xml
 from logger_settings import app_logger
 
 dataset = read_xml('C:\\Users\\sergio.camara\\Documents\\OneDrive\\Coding\\python\\XMLCodFab\\xml')
