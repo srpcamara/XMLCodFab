@@ -24,4 +24,5 @@ def export_db(view_name):
     
     c = connection.close()
 
+export_db('vw_match')
 export_db('vw_unmatch')
