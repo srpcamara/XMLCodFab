@@ -5,5 +5,6 @@ xml
 database.db
 *.log
 *.csv
+*.xlsx
 files
 run.bat
