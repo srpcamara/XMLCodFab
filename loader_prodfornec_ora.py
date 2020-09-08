@@ -18,10 +18,10 @@ dataset = []
 
 def read_db():
     
-    c_ora.execute('SELECT c.codfornec, f.cgc, f.fornecedor, c.codprod, c.codfab, p.descricao, nvl(p.codauxiliar,0), p.unidade, c.fator FROM pccodfabrica c, pcprodut p, pcfornec f WHERE c.codprod = p.codprod AND c.codfornec = f.codfornec') 
+    c_ora.execute('SELECT f.codfornec, f.cgc, f.fornecedor, p.codprod, p.codfab, p.descricao, nvl(p.codauxiliar,0), p.unidade FROM pcprodut p, pcfornec f WHERE p.codfornec = f.codfornec') 
     total_rows = c_ora.rowcount
     for row in c_ora:
-        dataset.append([row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]])   
+        dataset.append([row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]])   
         print(f'Processando linha {len(dataset)} de {total_rows}', end = '\r')
 
     print('Leitura da tabela Oracle concluída')
@@ -35,15 +35,14 @@ def clean_dataset(dataset):
 
 
 def write_internal_db(dataset):   
-    c_local.execute('DELETE FROM db')
+    c_local.execute('DELETE FROM prod_fornec')
 
     for linha in dataset:        
-        sql = f'INSERT INTO db(codfornec, cgc, fornecedor, codprod, codfab, descricao, codauxiliar, unidade, fator) values ({linha[0]}, {linha[1]}, "{linha[2]}", {linha[3]}, "{linha[4]}", "{linha[5]}", {linha[6]}, "{linha[7]}", {linha[8]})'
+        sql = f'INSERT INTO prod_fornec(codfornec, cgc, fornecedor, codprod, codfab, descricao, codauxiliar, unidade) values ({linha[0]}, {linha[1]}, "{linha[2]}", {linha[3]}, "{linha[4]}", "{linha[5]}", {linha[6]}, "{linha[7]}")'
         try:
-            c_local.execute(sql)                        
-            print(f'Processando linha {c_local.lastrowid} de {len(dataset)}', end = '\r')
+            c_local.execute(sql)
         except:
-            app_logger.error(f"Erro executando comando: {sql}")
+            app_logger.error(f"Erro executando comando: {sql}")    
     
     connection_local.commit()
 
