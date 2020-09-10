@@ -4,7 +4,7 @@ connection = sqlite3.connect('database.db')
 c = connection.cursor()
 
 def create_tables():
-    c.execute('CREATE TABLE IF NOT EXISTS xml (cnpj integer, codfabrica text, ean integer, descricao text, unidade text)')
+    c.execute('CREATE TABLE IF NOT EXISTS xml (numnota integer, cnpj integer, codfabrica text, ean integer, descricao text, unidade text)')
 
     c.execute('CREATE TABLE IF NOT EXISTS db (codfornec integer, cgc integer, fornecedor text, codprod integer, codfab text, descricao text, codauxiliar integer, unidade text, fator integer)')
 
