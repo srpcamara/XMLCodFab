@@ -7,6 +7,7 @@ from logger_settings import app_logger
 def connect_db_local():
     try:
         global connection_local
+
         connection_local = sqlite3.connect('database.db')        
         app_logger.info('Conectado ao banco de dados local.')
 
@@ -17,6 +18,7 @@ def connect_db_local():
 def connect_db_ora():
     try:
         global connection_ora
+
         dsn_tns = cx_Oracle.makedsn('10.10.0.15', '1521', service_name='WINTHOR') 
         connection_ora = cx_Oracle.connect(user=r'WINTHOR', password='WINTHOR', dsn=dsn_tns)
         app_logger.info('Conectado ao banco de dados Oracle')
@@ -28,39 +30,48 @@ def connect_db_ora():
 def read_xml_db():    
     cursor_ora = connection_ora.cursor()
 
-    cursor_ora.execute("SELECT COUNT(0) FROM PCNFENTXML WHERE dtemissao > '01-jan-2020'")
+    data_inicio = '01/01/2020'
+    data_fim = '31/01/2020'
+
+    cursor_ora.execute(f"SELECT COUNT(0) FROM PCNFENTXML WHERE dtemissao BETWEEN TO_DATE('{data_inicio}', 'DD/MM/YYYY') AND TO_DATE('{data_fim}', 'DD/MM/YYYY')")
     total_linhas = cursor_ora.fetchone()[0]
 
-    cursor_ora.execute("SELECT numnota, dadosxml FROM PCNFENTXML WHERE dtemissao > TO_DATE('09/09/2020', 'DD/MM/YYYY')")
-    #cursor_ora.execute("SELECT numnota, dadosxml FROM PCNFENTXML WHERE numnota = 448988")
+    cursor_ora.execute(f"SELECT numnota, dadosxml FROM PCNFENTXML WHERE dtemissao BETWEEN TO_DATE('{data_inicio}', 'DD/MM/YYYY') AND TO_DATE('{data_fim}', 'DD/MM/YYYY') ORDER BY dtemissao ASC")
     
     namespace = "{http://www.portalfiscal.inf.br/nfe}"
     dataset = []
     row_count = 0
     
-    for row in cursor_ora:
-        xml_blob = row[1].read()
-        tree = ET.ElementTree(ET.fromstring(xml_blob))
-        root = tree.getroot() 
+    try:
+        for row in cursor_ora:
+            xml_blob = row[1].read()
+            row_count += 1
 
-        try:
-            cnpj_origem = root[0][0][1][0].text
+            if len(xml_blob) > 50:
+                tree = ET.ElementTree(ET.fromstring(xml_blob))
+                root = tree.getroot()               
 
-            for x in root[0][0].findall(f'{namespace}det'):              
-                dataset.append([
-                    cnpj_origem,
-                    x[0].find(f'{namespace}cProd').text,
-                    x[0].find(f'{namespace}cEAN').text,
-                    x[0].find(f'{namespace}xProd').text,
-                    x[0].find(f'{namespace}uCom').text
-                ])
-                row_count += 1
-                print(f'Lendo arquivo {row_count} de {total_linhas}', end = '\r')                
-        except:
-            app_logger.error(f"Nota não processada: {row[0]}")
-    
+                try:
+                    cnpj_origem = root[0][0][1][0].text
+
+                    for x in root[0][0].findall(f'{namespace}det'):              
+                        dataset.append([
+                            cnpj_origem,
+                            x[0].find(f'{namespace}cProd').text,
+                            x[0].find(f'{namespace}cEAN').text,
+                            x[0].find(f'{namespace}xProd').text,
+                            x[0].find(f'{namespace}uCom').text
+                        ])                                                 
+                except:
+                    app_logger.error(f"Nota não processada: {row[0]}")
+
+            print(f'Lendo arquivo {row_count} de {total_linhas}', end = '\r')  
+    except:
+        app_logger.error(f"Nota não processada: {row[0]}")
+        
     print('\r')
     app_logger.info("Leitura finalizada")
+
     return dataset
 
 
@@ -100,15 +111,17 @@ def write_internal_db(dataset):
         cursor_local.execute(sql)
         print(f'Processando linha {cursor_local.lastrowid} de {len(dataset)}', end = '\r')
 
-    print('Gravação finalizada')
+    print('\r')
+    app_logger.info("Gravação no banco interno finalizada")
     connection_local.commit()
 
-connect_db_local()
-connect_db_ora()
+def execute():
+    connect_db_local()
+    connect_db_ora()
 
-dataset = read_xml_db()
+    dataset = read_xml_db()
 
-clean_dataset(dataset)
+    clean_dataset(dataset)
+    write_internal_db(dataset)
 
-write_internal_db(dataset)
-write_internal_db(dataset)
+execute()

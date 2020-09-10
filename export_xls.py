@@ -1,5 +1,6 @@
 import xlsxwriter
 import sqlite3
+from logger_settings import app_logger
 
 def export_db(view_name):
     connection = sqlite3.connect('database.db')
@@ -20,7 +21,8 @@ def export_db(view_name):
         for linha_num, data in enumerate(dataset):
             worksheet.write_row(linha_num, 0, data)
         
-        print('Arquivo gerado.')
+        print('\r')
+        app_logger.info(f'Arquivo gerado: {view_name}')
     
     c = connection.close()
 
